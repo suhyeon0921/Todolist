@@ -3,12 +3,22 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "start": "ts-node src/server.ts",
+    "build": "tsc"
+  },
   "dependencies": {
     "@graphql-yoga/node": "^3.9.1",
+    "@prisma/client": "^5.17.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
     "graphql": "^16.9.0",
-    "reflect-metadata": "^0.2.2"
+    "reflect-metadata": "^0.2.2",
+    "graphql-tag": "^2.12.6",
+    "prettier": "^3.3.3"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/graphql": "^14.5.0",
     "@types/node": "^20.14.11",
     "prisma": "^5.17.0",
