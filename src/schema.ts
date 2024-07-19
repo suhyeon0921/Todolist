@@ -25,6 +25,7 @@ const typeDefs = gql`
       fullName: String!
       nickname: String!
     ): User!
+    loginUser(email: String, phoneNumber: String, password: String!): User
   }
 `;
 
@@ -91,6 +92,19 @@ const resolvers = {
           nickname: args.nickname,
         },
       });
+    },
+    loginUser: async (_parent: any, args: any, context: any) => {
+      const user = await context.prisma.user.findFirst({
+        where: {
+          OR: [{ email: args.email }, { phoneNumber: args.phoneNumber }],
+        },
+      });
+
+      if (!user) {
+        throw new Error('해당 유저를 찾을 수 없습니다.');
+      }
+
+      return user;
     },
   },
 };
