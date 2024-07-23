@@ -1,8 +1,11 @@
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { gql } from 'graphql-tag';
 import { GraphQLError } from 'graphql';
+import { GraphQLDateTime } from 'graphql-iso-date';
 
 const typeDefs = gql`
+  scalar DateTime
+
   type User {
     id: ID!
     email: String
@@ -10,23 +13,25 @@ const typeDefs = gql`
     password: String!
     fullName: String!
     nickname: String!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    deletedAt: DateTime
   }
 
   type Task {
     id: ID!
     content: String!
     isDone: Boolean!
-    createdAt: String!
-    updatedAt: String!
-    deletedAt: String
     user: User
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    deletedAt: DateTime
   }
 
   type Query {
     users: [User!]!
     user(id: ID!): User
     tasks(userId: ID!): [Task!]!
-    taskCount(userId: ID!): TaskCount!
   }
 
   type Mutation {
@@ -48,6 +53,8 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phoneNumberRegex = /^010\d{8}$/;
 
 const resolvers = {
+  DateTime: GraphQLDateTime,
+
   Query: {
     // FIXME: any 타입 수정
     users: async (_parent: any, _args: any, context: any) => {
@@ -119,14 +126,14 @@ const resolvers = {
         throw new GraphQLError('해당 유저를 찾을 수 없습니다.');
       }
 
-      return user;
+      return {
+        ...user,
+        createdAt: user.createdAt.toISOString(),
+        updatedAt: user.updatedAt.toISOString(),
+        deletedAt: user.deletedAt ? user.deletedAt.toISOString() : null,
+      };
     },
     createTask: async (_parent: any, args: any, context: any) => {
-      const user = await context.prisma.user.findFirst({
-        where: {
-          id: Number(args.userId),
-        },
-      });
       const task = await context.prisma.task.create({
         data: {
           content: args.content,
@@ -157,17 +164,23 @@ const resolvers = {
         );
       }
 
-      return context.prisma.task.update({
+      const updatedTask = await context.prisma.task.update({
         where: { id: Number(id) },
         data: {
           content: content,
         },
-        include: {
-          user: true,
-        },
+        include: { user: true },
       });
+
+      return {
+        ...updatedTask,
+        createdAt: updatedTask.createdAt.toISOString(),
+        updatedAt: updatedTask.updatedAt.toISOString(),
+        deletedAt: updatedTask.deletedAt
+          ? updatedTask.deletedAt.toISOString()
+          : null,
+      };
     },
-    readAllTask: async (_parent: any, args: any, context: any) => {},
   },
 };
 
