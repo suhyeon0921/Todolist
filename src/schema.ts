@@ -12,9 +12,21 @@ const typeDefs = gql`
     nickname: String!
   }
 
+  type Task {
+    id: ID!
+    content: String!
+    isDone: Boolean!
+    createdAt: String!
+    updatedAt: String!
+    deletedAt: String
+    user: User
+  }
+
   type Query {
     users: [User!]!
     user(id: ID!): User
+    tasks(userId: ID!): [Task!]!
+    taskCount(userId: ID!): TaskCount!
   }
 
   type Mutation {
@@ -26,6 +38,8 @@ const typeDefs = gql`
       nickname: String!
     ): User!
     loginUser(email: String, phoneNumber: String, password: String!): User
+
+    createTask(userId: ID!, content: String!): Task!
   }
 `;
 
@@ -105,6 +119,29 @@ const resolvers = {
       }
 
       return user;
+    },
+    createTask: async (_parent: any, args: any, context: any) => {
+      const user = await context.prisma.user.findFirst({
+        where: {
+          id: Number(args.userId),
+        },
+      });
+      const task = await context.prisma.task.create({
+        data: {
+          content: args.content,
+          userId: Number(args.userId),
+        },
+      });
+
+      return {
+        id: task.id,
+        content: task.content,
+        isDone: task.isDone,
+        createdAt: task.createdAt.toISOString(),
+        updatedAt: task.updatedAt.toISOString(),
+        deletedAt: task.deletedAt ? task.deletedAt.toISOString() : null,
+        user: task.user,
+      };
     },
   },
 };
