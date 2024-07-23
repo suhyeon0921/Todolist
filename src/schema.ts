@@ -65,6 +65,13 @@ const resolvers = {
         where: { id: Number(args.id) },
       });
     },
+    /** 태스크 전체 조회 */
+    tasks: async (_parent: any, args: any, context: any) => {
+      return context.prisma.task.findMany({
+        where: { userId: Number(args.userId), deletedAt: null },
+        include: { user: true },
+      });
+    },
   },
 
   Mutation: {
