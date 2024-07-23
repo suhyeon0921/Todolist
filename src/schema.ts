@@ -32,6 +32,7 @@ const typeDefs = gql`
     users: [User!]!
     user(id: ID!): User
     tasks(userId: ID!): [Task!]!
+    taskCount(userId: ID!): TaskCount!
   }
 
   type Mutation {
@@ -49,6 +50,11 @@ const typeDefs = gql`
     deleteTask(userId: ID!, id: ID!): Task!
     completeTask(userId: ID!, id: ID!): Task!
     uncompleteTask(userId: ID!, id: ID!): Task!
+  }
+
+  type TaskCount {
+    completedTaskCount: Int!
+    totalTaskCount: Int!
   }
 `;
 
@@ -74,6 +80,18 @@ const resolvers = {
         where: { userId: Number(args.userId), deletedAt: null },
         include: { user: true },
       });
+    },
+    /** 완료한 태스크 개수와 전체 태스크 개수 조회 */
+    taskCount: async (_parent: any, args: any, context: any) => {
+      const completedTaskCount = context.prisma.task.count({
+        where: { userId: Number(args.userId), isDone: true, deletedAt: null },
+      });
+
+      const totalTaskCount = context.prisma.task.count({
+        where: { userId: Number(args.userId), deletedAt: null },
+      });
+
+      return { completedTaskCount, totalTaskCount };
     },
   },
 
