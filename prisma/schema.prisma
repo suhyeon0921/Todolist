@@ -9,24 +9,24 @@ datasource db {
 
 model User {
   id          Int       @id @default(autoincrement())
-  email       String?   @unique @map("email")
-  phoneNumber String?   @unique @map("phone_number")
+  email       String?   @unique
+  phoneNumber String?   @unique
   password    String
-  fullName    String    @map("full_name")
+  fullName    String
   nickname    String    @unique
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  deletedAt   DateTime? @map("deleted_at")
-  tasks       Task[]    @relation("User_tasks")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  tasks       Task[]    @relation("user_tasks")
 }
 
 model Task {
   id        Int       @id @default(autoincrement())
   content   String
-  isDone    Boolean   @default(false) @map("is_done")
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
-  user      User?     @relation("User_tasks", fields: [userId], references: [id])
-  userId    Int?      @map("user_id")
+  isDone    Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  user      User?     @relation("user_tasks", fields: [userId], references: [id])
+  userId    Int?
 }

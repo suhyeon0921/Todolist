@@ -40,6 +40,7 @@ const typeDefs = gql`
     loginUser(email: String, phoneNumber: String, password: String!): User
 
     createTask(userId: ID!, content: String!): Task!
+    updateTask(userId: ID!, id: ID!, content: String): Task!
   }
 `;
 
@@ -97,7 +98,7 @@ const resolvers = {
         }
       }
 
-      return await context.prisma.user.create({
+      return context.prisma.user.create({
         data: {
           email: args.email || undefined,
           phoneNumber: args.phoneNumber || undefined,
@@ -115,7 +116,7 @@ const resolvers = {
       });
 
       if (!user) {
-        throw new Error('해당 유저를 찾을 수 없습니다.');
+        throw new GraphQLError('해당 유저를 찾을 수 없습니다.');
       }
 
       return user;
@@ -143,6 +144,30 @@ const resolvers = {
         user: task.user,
       };
     },
+    updateTask: async (_parent: any, args: any, context: any) => {
+      const { userId, id, content } = args;
+
+      const task = await context.prisma.task.findFirst({
+        where: { id: Number(id), userId: Number(userId), deletedAt: null },
+      });
+
+      if (!task) {
+        return new GraphQLError(
+          '태스크를 찾을 수 없거나 작성한 유저가 아닙니다.'
+        );
+      }
+
+      return context.prisma.task.update({
+        where: { id: Number(id) },
+        data: {
+          content: content,
+        },
+        include: {
+          user: true,
+        },
+      });
+    },
+    readAllTask: async (_parent: any, args: any, context: any) => {},
   },
 };
 
