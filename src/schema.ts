@@ -48,6 +48,7 @@ const typeDefs = gql`
     updateTask(userId: ID!, id: ID!, content: String): Task!
     deleteTask(userId: ID!, id: ID!): Task!
     completeTask(userId: ID!, id: ID!): Task!
+    uncompleteTask(userId: ID!, id: ID!): Task!
   }
 `;
 
@@ -242,6 +243,35 @@ const resolvers = {
         createdAt: doneTask.createdAt.toISOString(),
         updatedAt: doneTask.updatedAt.toISOString(),
         deletedAt: doneTask.deletedAt ? doneTask.deletedAt.toISOString() : null,
+      };
+    },
+
+    uncompleteTask: async (_parent: any, args: any, context: any) => {
+      const { userId, id } = args;
+
+      const task = await context.prisma.task.findFirst({
+        where: { id: Number(id), userId: Number(userId), deletedAt: null },
+      });
+
+      if (!task) {
+        throw new GraphQLError(
+          '태스크를 찾을 수 없거나 작성한 유저가 아닙니다.'
+        );
+      }
+
+      const cancelTask = await context.prisma.task.update({
+        where: { id: Number(id) },
+        data: { isDone: false },
+        include: { user: true },
+      });
+
+      return {
+        ...cancelTask,
+        createdAt: cancelTask.createdAt.toISOString(),
+        updatedAt: cancelTask.updatedAt.toISOString(),
+        deletedAt: cancelTask.deletedAt
+          ? cancelTask.deletedAt.toISOString()
+          : null,
       };
     },
   },
