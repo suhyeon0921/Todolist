@@ -1,12 +1,19 @@
+import express from 'express';
+import 'express-async-errors';
 import { createYoga } from 'graphql-yoga';
 import { schema } from './schema';
 import { context } from './context';
-import { createServer } from 'http';
 
-const yoga = createYoga({ schema, context });
+const app = express();
 
-const server = createServer(yoga);
+const yoga = createYoga({
+  schema,
+  context,
+  graphqlEndpoint: '/graphql',
+});
 
-server.listen(4000, () => {
-  console.log('GraphQL server: http://localhost:4000');
+app.use('/graphql', yoga);
+
+app.listen(4000, () => {
+  console.log('GraphQL server: http://localhost:4000/graphql');
 });

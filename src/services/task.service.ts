@@ -1,0 +1,83 @@
+import { GraphQLError } from 'graphql';
+import { Task } from '@prisma/client';
+import {
+  countTasksByUserId,
+  createTask as createTaskInRepository,
+  findTaskByIdAndUserId,
+  findTasksByUserId,
+  updateTask as updateTaskInRepository,
+} from '../repositories/task.repository';
+import { TaskCountType } from '../types/task';
+
+/** 태스크 전체 조회 */
+export const getTasks = async (
+  context: any,
+  userId: number
+): Promise<Task[]> => {
+  return findTasksByUserId(userId);
+};
+
+/** 태스크 개수 조회 */
+export const getTaskCount = async (
+  context: any,
+  userId: number
+): Promise<TaskCountType> => {
+  const completedTaskCount = await countTasksByUserId(userId, true);
+  const totalTaskCount = await countTasksByUserId(userId);
+
+  return { completedTaskCount, totalTaskCount };
+};
+
+/** 태스크 조회 */
+const findTask = async (
+  context: any,
+  id: number,
+  userId: number
+): Promise<Task> => {
+  const task = await findTaskByIdAndUserId(id, userId);
+
+  if (!task) {
+    throw new GraphQLError('태스크를 찾을 수 없거나 작성한 유저가 아닙니다.');
+  }
+
+  return task;
+};
+
+/** 태스크 생성 */
+export const createTask = async (context: any, args: any): Promise<Task> => {
+  return createTaskInRepository({
+    content: args.content,
+    userId: Number(args.userId),
+  });
+};
+
+/** 태스크 업데이트 */
+export const updateTask = async (context: any, args: any): Promise<Task> => {
+  await findTask(context, Number(args.id), Number(args.userId));
+
+  return updateTaskInRepository(Number(args.id), { content: args.content });
+};
+
+/** 태스크 삭제 */
+export const deleteTask = async (context: any, args: any): Promise<Task> => {
+  await findTask(context, Number(args.id), Number(args.userId));
+
+  return updateTaskInRepository(Number(args.id), { deletedAt: new Date() });
+};
+
+/** 태스크 완료 */
+export const completeTask = async (context: any, args: any): Promise<Task> => {
+  await findTask(context, Number(args.id), Number(args.userId));
+
+  return updateTaskInRepository(Number(args.id), { isDone: true });
+};
+
+/** 태스크 완료 취소 */
+export const uncompleteTask = async (
+  context: any,
+  args: any
+): Promise<Task> => {
+  await findTask(context, Number(args.id), Number(args.userId));
+
+  return updateTaskInRepository(Number(args.id), { isDone: false });
+};
