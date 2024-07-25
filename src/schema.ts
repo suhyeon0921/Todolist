@@ -29,6 +29,16 @@ const typeDefs = gql`
     deletedAt: DateTime
   }
 
+  type TaskCount {
+    completedTaskCount: Int!
+    totalTaskCount: Int!
+  }
+
+  type AuthPayload {
+    accessToken: String!
+    refreshToken: String!
+  }
+
   type Query {
     tasks(userId: ID!): [Task!]!
     taskCount(userId: ID!): TaskCount!
@@ -42,18 +52,14 @@ const typeDefs = gql`
       fullName: String!
       nickname: String!
     ): User
-    login(email: String, phoneNumber: String, password: String!): User
+    login(email: String, phoneNumber: String, password: String!): AuthPayload!
+    refresh(refreshToken: String!): AuthPayload!
 
     createTask(userId: ID!, content: String!): Task!
     updateTask(userId: ID!, id: ID!, content: String): Task!
     deleteTask(userId: ID!, id: ID!): Task!
     completeTask(userId: ID!, id: ID!): Task!
     uncompleteTask(userId: ID!, id: ID!): Task!
-  }
-
-  type TaskCount {
-    completedTaskCount: Int!
-    totalTaskCount: Int!
   }
 `;
 

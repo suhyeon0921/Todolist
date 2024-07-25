@@ -1,7 +1,8 @@
-import { PrismaClient, User } from '@prisma/client';
+import { Prisma, PrismaClient, User } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+/** 이메일 또는 휴대폰 번호로 유저 찾기 */
 export const findUserByEmailOrPhone = async (
   email?: string,
   phoneNumber?: string
@@ -13,6 +14,7 @@ export const findUserByEmailOrPhone = async (
   });
 };
 
+/** 이메일 또는 휴대폰 번호 또는 닉네임으로 유저 찾기 */
 export const findUserByEmailOrPhoneOrNickname = async (
   email?: string,
   phoneNumber?: string,
@@ -25,20 +27,35 @@ export const findUserByEmailOrPhoneOrNickname = async (
   });
 };
 
-export const createUser = async (data: {
-  email?: string;
-  phoneNumber?: string;
-  password: string;
-  fullName: string;
-  nickname: string;
-}): Promise<User> => {
+/** 유저 생성 */
+export const createUser = async (
+  data: Prisma.UserCreateInput
+): Promise<User> => {
   return prisma.user.create({
-    data: {
-      email: data.email || undefined,
-      phoneNumber: data.phoneNumber || undefined,
-      password: data.password,
-      fullName: data.fullName,
-      nickname: data.nickname,
+    data,
+  });
+};
+
+/** 리프레시 토큰 저장 */
+export const saveRefreshToken = async (
+  userId: number,
+  token: string
+): Promise<User> => {
+  return prisma.user.update({
+    where: { id: userId },
+    data: { refreshToken: token },
+  });
+};
+
+/** 리프레시 토큰으로 유저 찾기 */
+export const findUserWithRefreshToken = async (
+  userId: number,
+  token: string
+): Promise<User | null> => {
+  return prisma.user.findFirst({
+    where: {
+      id: userId,
+      refreshToken: token,
     },
   });
 };
