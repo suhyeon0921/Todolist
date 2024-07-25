@@ -7,8 +7,18 @@ export interface Context {
   prisma: PrismaClient;
   req: Request;
   res: Response;
+  user?: any;
 }
 
-export const context = {
+export const createContext = ({
+  req,
+  res,
+}: {
+  req: Request;
+  res: Response;
+}): Context => ({
   prisma,
-};
+  req,
+  res,
+  user: (req as any).user,
+});
