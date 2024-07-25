@@ -7,32 +7,60 @@ import {
   uncompleteTask,
   updateTask,
 } from '../services/task.service';
+import { Context } from '../context';
+import { CreateTaskInput, TaskId, UpdateTaskInput } from '../dto/task.dto';
+import { Task } from '@prisma/client';
+import { TaskCount } from '../types/task';
 
 const taskResolvers = {
   Query: {
-    tasks: async (_parent: any, args: any, context: any) => {
-      return getTasks(context, Number(args.userId));
+    tasks: async (_: any, __: any, context: Context): Promise<Task[]> => {
+      return getTasks(context.user.userId);
     },
-    taskCount: async (_parent: any, args: any, context: any) => {
-      return getTaskCount(context, Number(args.userId));
+    taskCount: async (
+      _: any,
+      __: any,
+      context: Context
+    ): Promise<TaskCount> => {
+      return getTaskCount(context.user.userId);
     },
   },
 
   Mutation: {
-    createTask: async (_parent: any, args: any, context: any) => {
-      return createTask(context, args);
+    createTask: async (
+      _: any,
+      args: CreateTaskInput,
+      context: Context
+    ): Promise<Task> => {
+      return createTask(args.content, context.user.userId);
     },
-    updateTask: async (_parent: any, args: any, context: any) => {
-      return updateTask(context, args);
+    updateTask: async (
+      _: any,
+      args: UpdateTaskInput,
+      context: Context
+    ): Promise<Task> => {
+      return updateTask(args.id, args.content, context.user.userId);
     },
-    deleteTask: async (_parent: any, args: any, context: any) => {
-      return deleteTask(context, args);
+    deleteTask: async (
+      _: any,
+      args: TaskId,
+      context: Context
+    ): Promise<Task> => {
+      return deleteTask(args.id, context.user.userId);
     },
-    completeTask: async (_parent: any, args: any, context: any) => {
-      return completeTask(context, args);
+    completeTask: async (
+      _: any,
+      args: TaskId,
+      context: Context
+    ): Promise<Task> => {
+      return completeTask(args.id, context.user.userId);
     },
-    uncompleteTask: async (_parent: any, args: any, context: any) => {
-      return uncompleteTask(context, args);
+    uncompleteTask: async (
+      _: any,
+      args: TaskId,
+      context: Context
+    ): Promise<Task> => {
+      return uncompleteTask(args.id, context.user.userId);
     },
   },
 };

@@ -1,4 +1,4 @@
-export interface TaskCountType {
+export interface TaskCount {
   completedTaskCount: Number;
   totalTaskCount: Number;
 }

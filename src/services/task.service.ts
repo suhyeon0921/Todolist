@@ -7,21 +7,15 @@ import {
   findTasksByUserId,
   updateTask as updateTaskInRepository,
 } from '../repositories/task.repository';
-import { TaskCountType } from '../types/task';
+import { TaskCount } from '../types/task';
 
 /** 태스크 전체 조회 */
-export const getTasks = async (
-  context: any,
-  userId: number
-): Promise<Task[]> => {
+export const getTasks = async (userId: number): Promise<Task[]> => {
   return findTasksByUserId(userId);
 };
 
 /** 태스크 개수 조회 */
-export const getTaskCount = async (
-  context: any,
-  userId: number
-): Promise<TaskCountType> => {
+export const getTaskCount = async (userId: number): Promise<TaskCount> => {
   const completedTaskCount = await countTasksByUserId(userId, true);
   const totalTaskCount = await countTasksByUserId(userId);
 
@@ -29,11 +23,7 @@ export const getTaskCount = async (
 };
 
 /** 태스크 조회 */
-const findTask = async (
-  context: any,
-  id: number,
-  userId: number
-): Promise<Task> => {
+const findTask = async (id: number, userId: number): Promise<Task> => {
   const task = await findTaskByIdAndUserId(id, userId);
 
   if (!task) {
@@ -44,40 +34,50 @@ const findTask = async (
 };
 
 /** 태스크 생성 */
-export const createTask = async (context: any, args: any): Promise<Task> => {
+export const createTask = async (
+  content: string,
+  userId: number
+): Promise<Task> => {
   return createTaskInRepository({
-    content: args.content,
-    userId: Number(args.userId),
+    content,
+    userId: Number(userId),
   });
 };
 
 /** 태스크 업데이트 */
-export const updateTask = async (context: any, args: any): Promise<Task> => {
-  await findTask(context, Number(args.id), Number(args.userId));
+export const updateTask = async (
+  id: number,
+  content: string,
+  userId: number
+): Promise<Task> => {
+  await findTask(Number(id), Number(userId));
 
-  return updateTaskInRepository(Number(args.id), { content: args.content });
+  return updateTaskInRepository(Number(id), { content: content });
 };
 
 /** 태스크 삭제 */
-export const deleteTask = async (context: any, args: any): Promise<Task> => {
-  await findTask(context, Number(args.id), Number(args.userId));
+export const deleteTask = async (id: number, userId: number): Promise<Task> => {
+  await findTask(Number(id), Number(userId));
 
-  return updateTaskInRepository(Number(args.id), { deletedAt: new Date() });
+  return updateTaskInRepository(Number(id), { deletedAt: new Date() });
 };
 
 /** 태스크 완료 */
-export const completeTask = async (context: any, args: any): Promise<Task> => {
-  await findTask(context, Number(args.id), Number(args.userId));
+export const completeTask = async (
+  id: number,
+  userId: number
+): Promise<Task> => {
+  await findTask(Number(id), Number(userId));
 
-  return updateTaskInRepository(Number(args.id), { isDone: true });
+  return updateTaskInRepository(Number(id), { isDone: true });
 };
 
 /** 태스크 완료 취소 */
 export const uncompleteTask = async (
-  context: any,
-  args: any
+  id: number,
+  userId: number
 ): Promise<Task> => {
-  await findTask(context, Number(args.id), Number(args.userId));
+  await findTask(Number(id), Number(userId));
 
-  return updateTaskInRepository(Number(args.id), { isDone: false });
+  return updateTaskInRepository(Number(id), { isDone: false });
 };

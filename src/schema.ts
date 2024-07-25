@@ -40,8 +40,8 @@ const typeDefs = gql`
   }
 
   type Query {
-    tasks(userId: ID!): [Task!]!
-    taskCount(userId: ID!): TaskCount!
+    tasks: [Task!]!
+    taskCount: TaskCount!
   }
 
   type Mutation {
@@ -55,11 +55,11 @@ const typeDefs = gql`
     login(email: String, phoneNumber: String, password: String!): AuthPayload!
     refresh(refreshToken: String!): AuthPayload!
 
-    createTask(userId: ID!, content: String!): Task!
-    updateTask(userId: ID!, id: ID!, content: String): Task!
-    deleteTask(userId: ID!, id: ID!): Task!
-    completeTask(userId: ID!, id: ID!): Task!
-    uncompleteTask(userId: ID!, id: ID!): Task!
+    createTask(content: String!): Task!
+    updateTask(id: ID!, content: String): Task!
+    deleteTask(id: ID!): Task!
+    completeTask(id: ID!): Task!
+    uncompleteTask(id: ID!): Task!
   }
 `;
 
