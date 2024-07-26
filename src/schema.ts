@@ -1,8 +1,10 @@
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { gql } from 'graphql-tag';
 import { GraphQLDateTime } from 'graphql-iso-date';
+import { applyMiddleware } from 'graphql-middleware';
 import userResolvers from './resolvers/user.resolver';
 import taskResolvers from './resolvers/task.resolver';
+import { authMiddleware } from './middleware/auth';
 
 const typeDefs = gql`
   scalar DateTime
@@ -74,7 +76,26 @@ const resolvers = {
   },
 };
 
-export const schema = makeExecutableSchema({
+// Task 리졸버에만 인증 미들웨어를 적용
+const taskMiddleware = {
+  Query: {
+    tasks: authMiddleware,
+    taskCount: authMiddleware,
+  },
+  Mutation: {
+    createTask: authMiddleware,
+    updateTask: authMiddleware,
+    deleteTask: authMiddleware,
+    completeTask: authMiddleware,
+    uncompleteTask: authMiddleware,
+  },
+};
+
+const schema = makeExecutableSchema({
   typeDefs,
   resolvers,
 });
+
+const schemaWithMiddleware = applyMiddleware(schema, taskMiddleware);
+
+export { schemaWithMiddleware as schema };

@@ -8,3 +8,9 @@ export interface JwtPayload {
   email?: string | null;
   phoneNumber?: string | null;
 }
+
+export interface UserPayload {
+  userId: number;
+  email?: string;
+  phoneNumber?: string;
+}
