@@ -6,11 +6,10 @@ import { JwtPayload, JwtToken } from '../types/user';
 import { generateToken, verifyToken } from '../utils/jwt';
 import { SignupInput } from '../dto/user.dto';
 
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const phoneNumberRegex = /^010\d{8}$/;
-
 class UserService {
   private static instance: UserService;
+  private emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  private phoneNumberRegex = /^010\d{8}$/;
 
   private constructor() {}
 
@@ -35,11 +34,11 @@ class UserService {
       throw new GraphQLError('이메일 또는 휴대폰 번호가 제공되지 않았습니다.');
     }
 
-    if (email && !emailRegex.test(email)) {
+    if (email && !this.emailRegex.test(email)) {
       throw new GraphQLError('유효한 이메일 형식이 아닙니다.');
     }
 
-    if (phoneNumber && !phoneNumberRegex.test(phoneNumber)) {
+    if (phoneNumber && !this.phoneNumberRegex.test(phoneNumber)) {
       throw new GraphQLError('유효한 휴대폰 번호 형식이 아닙니다.');
     }
   }
