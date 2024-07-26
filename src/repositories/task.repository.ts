@@ -6,6 +6,9 @@ export const findTasksByUserId = async (userId: number): Promise<Task[]> => {
   return prisma.task.findMany({
     where: { userId, deletedAt: null },
     include: { user: true },
+    orderBy: {
+      id: 'desc',
+    },
   });
 };
 
