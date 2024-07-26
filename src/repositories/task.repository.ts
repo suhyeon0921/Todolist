@@ -1,51 +1,65 @@
-import { PrismaClient, Task } from '@prisma/client';
+import { Task } from '@prisma/client';
+import { prisma } from '../../prisma/prisma';
 
-const prisma = new PrismaClient();
+class TaskRepository {
+  private static instance: TaskRepository;
 
-export const findTasksByUserId = async (userId: number): Promise<Task[]> => {
-  return prisma.task.findMany({
-    where: { userId, deletedAt: null },
-    include: { user: true },
-    orderBy: {
-      id: 'desc',
-    },
-  });
-};
+  private constructor() {}
 
-export const countTasksByUserId = async (
-  userId: number,
-  isDone?: boolean
-): Promise<Number> => {
-  return prisma.task.count({
-    where: { userId, isDone, deletedAt: null },
-  });
-};
+  public static getInstance(): TaskRepository {
+    if (!TaskRepository.instance) {
+      TaskRepository.instance = new TaskRepository();
+    }
+    return TaskRepository.instance;
+  }
 
-export const findTaskByIdAndUserId = async (
-  id: number,
-  userId: number
-): Promise<Task | null> => {
-  return prisma.task.findFirst({
-    where: { id, userId, deletedAt: null },
-  });
-};
+  public async findTasksByUserId(userId: number): Promise<Task[]> {
+    return prisma.task.findMany({
+      where: { userId, deletedAt: null },
+      include: { user: true },
+      orderBy: {
+        id: 'desc',
+      },
+    });
+  }
 
-export const createTask = async (data: {
-  content: string;
-  userId: number;
-}): Promise<Task> => {
-  return prisma.task.create({
-    data,
-  });
-};
+  public async countTasksByUserId(
+    userId: number,
+    isDone?: boolean
+  ): Promise<Number> {
+    return prisma.task.count({
+      where: { userId, isDone, deletedAt: null },
+    });
+  }
 
-export const updateTask = async (
-  id: number,
-  data: { content?: string; isDone?: boolean; deletedAt?: Date }
-): Promise<Task> => {
-  return prisma.task.update({
-    where: { id },
-    data,
-    include: { user: true },
-  });
-};
+  public async findTaskByIdAndUserId(
+    id: number,
+    userId: number
+  ): Promise<Task | null> {
+    return prisma.task.findFirst({
+      where: { id, userId, deletedAt: null },
+    });
+  }
+
+  public async createTask(data: {
+    content: string;
+    userId: number;
+  }): Promise<Task> {
+    return prisma.task.create({
+      data,
+    });
+  }
+
+  public async updateTask(
+    id: number,
+    data: { content?: string; isDone?: boolean; deletedAt?: Date }
+  ): Promise<Task> {
+    return prisma.task.update({
+      where: { id },
+      data,
+      include: { user: true },
+    });
+  }
+}
+
+export const taskRepository = TaskRepository.getInstance();

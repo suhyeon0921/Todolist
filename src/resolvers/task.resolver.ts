@@ -1,28 +1,20 @@
-import {
-  completeTask,
-  createTask,
-  deleteTask,
-  getTaskCount,
-  getTasks,
-  uncompleteTask,
-  updateTask,
-} from '../services/task.service';
+import { Task } from '@prisma/client';
 import { Context } from '../context';
 import { CreateTaskInput, TaskId, UpdateTaskInput } from '../dto/task.dto';
-import { Task } from '@prisma/client';
 import { TaskCount } from '../types/task';
+import { taskService } from '../services/task.service';
 
 const taskResolvers = {
   Query: {
     tasks: async (_: any, __: any, context: Context): Promise<Task[]> => {
-      return getTasks(context.user.userId);
+      return taskService.getTasks(context.user.userId);
     },
     taskCount: async (
       _: any,
       __: any,
       context: Context
     ): Promise<TaskCount> => {
-      return getTaskCount(context.user.userId);
+      return taskService.getTaskCount(context.user.userId);
     },
   },
 
@@ -32,35 +24,35 @@ const taskResolvers = {
       args: CreateTaskInput,
       context: Context
     ): Promise<Task> => {
-      return createTask(args.content, context.user.userId);
+      return taskService.createTask(args.content, context.user.userId);
     },
     updateTask: async (
       _: any,
       args: UpdateTaskInput,
       context: Context
     ): Promise<Task> => {
-      return updateTask(args.id, args.content, context.user.userId);
+      return taskService.updateTask(args.id, args.content, context.user.userId);
     },
     deleteTask: async (
       _: any,
       args: TaskId,
       context: Context
     ): Promise<Task> => {
-      return deleteTask(args.id, context.user.userId);
+      return taskService.deleteTask(args.id, context.user.userId);
     },
     completeTask: async (
       _: any,
       args: TaskId,
       context: Context
     ): Promise<Task> => {
-      return completeTask(args.id, context.user.userId);
+      return taskService.completeTask(args.id, context.user.userId);
     },
     uncompleteTask: async (
       _: any,
       args: TaskId,
       context: Context
     ): Promise<Task> => {
-      return uncompleteTask(args.id, context.user.userId);
+      return taskService.uncompleteTask(args.id, context.user.userId);
     },
   },
 };
