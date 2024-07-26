@@ -2,27 +2,13 @@ import { Prisma, PrismaClient, User } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-/** 이메일 또는 휴대폰 번호로 유저 찾기 */
-export const findUserByEmailOrPhone = async (
-  email?: string,
-  phoneNumber?: string
+/** 다양한 조건으로 유저 찾기 */
+export const findUser = async (
+  conditions: Partial<User>
 ): Promise<User | null> => {
   return prisma.user.findFirst({
     where: {
-      OR: [{ email }, { phoneNumber }],
-    },
-  });
-};
-
-/** 이메일 또는 휴대폰 번호 또는 닉네임으로 유저 찾기 */
-export const findUserByEmailOrPhoneOrNickname = async (
-  email?: string,
-  phoneNumber?: string,
-  nickname?: string
-): Promise<User | null> => {
-  return prisma.user.findFirst({
-    where: {
-      OR: [{ email }, { phoneNumber }, { nickname }],
+      OR: Object.entries(conditions).map(([key, value]) => ({ [key]: value })),
     },
   });
 };

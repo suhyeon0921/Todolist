@@ -1,11 +1,9 @@
 import { GraphQLError } from 'graphql';
 import { Prisma, User } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import {
   createUser as createUserInRepository,
-  findUserByEmailOrPhone,
-  findUserByEmailOrPhoneOrNickname,
+  findUser,
   findUserWithRefreshToken,
   saveRefreshToken,
 } from '../repositories/user.repository';
@@ -45,11 +43,11 @@ export const checkExistingUser = async (
   phoneNumber?: string,
   nickname?: string
 ): Promise<void> => {
-  const existingUser: User | null = await findUserByEmailOrPhoneOrNickname(
+  const existingUser: User | null = await findUser({
     email,
     phoneNumber,
-    nickname
-  );
+    nickname,
+  });
 
   if (existingUser) {
     if (existingUser.email === email) {
@@ -83,7 +81,10 @@ export const login = async (
   email?: string,
   phoneNumber?: string
 ): Promise<JwtToken> => {
-  const user: User | null = await findUserByEmailOrPhone(email, phoneNumber);
+  const user: User | null = await findUser({
+    email,
+    phoneNumber,
+  });
 
   if (!user) {
     throw new GraphQLError('해당 유저를 찾을 수 없습니다.');
@@ -99,7 +100,7 @@ export const login = async (
   }
 
   // JWT 페이로드 생성
-  const payload = {
+  const payload: JwtPayload = {
     userId: user.id,
     email: user.email,
     phoneNumber: user.phoneNumber,
@@ -132,14 +133,13 @@ export const refreshAccessToken = async (
       throw new GraphQLError('유효하지 않은 리프레시 토큰입니다.');
     }
 
-    const accessToken: string = jwt.sign(
+    const accessToken: string = generateToken(
       {
         userId: payload.userId,
         email: payload.email,
         phoneNumber: payload.phoneNumber,
       },
-      process.env.JWT_SECRET as string,
-      { expiresIn: '1h' }
+      '1h'
     );
 
     return { accessToken };
