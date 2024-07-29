@@ -1,0 +1,41 @@
+{
+  "name": "todolist",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon src/server.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@graphql-yoga/node": "^3.9.1",
+    "@prisma/client": "^5.17.0",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.2",
+    "cookie-parser": "^1.4.6",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "express": "^4.19.2",
+    "express-async-errors": "^3.1.1",
+    "graphql": "^16.9.0",
+    "graphql-iso-date": "^3.6.1",
+    "graphql-middleware": "^6.1.35",
+    "graphql-tag": "^2.12.6",
+    "jsonwebtoken": "^9.0.2",
+    "prettier": "^3.3.3",
+    "reflect-metadata": "^0.2.2"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.7",
+    "@types/express": "^4.17.21",
+    "@types/graphql": "^14.5.0",
+    "@types/graphql-iso-date": "^3.4.3",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/node": "^20.14.11",
+    "nodemon": "^3.1.4",
+    "prisma": "^5.17.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.3"
+  }
+}
